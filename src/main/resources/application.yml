@@ -1,0 +1,21 @@
+server:
+  port: 8081
+  tomcat:
+    max-threads: 2000
+    max-connections: 10000
+    accept-count: 2000
+    min-spare-threads: 100
+    uri-encoding: utf-8
+  compression:
+    enabled: true
+    min-response-size: 2048
+    mime-types: text/html,text/xml,text/javascript,text/css,text/plain
+
+spring:
+  activemq:
+    broker-url: tcp://127.0.0.1:61616
+    close-timeout: 5000
+    in-memory: false
+    send-timeout: 3000
+    packages:
+      trust-all: true
