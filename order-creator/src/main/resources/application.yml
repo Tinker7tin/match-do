@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: order-creator
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092 #
+      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      acks: all                # 平衡延迟与可靠性（高频场景可设为1）
+      linger-ms: 0             # 禁用批量等待（最大化实时性）
+      batch-size: 16384        # 单个批次最大字节数（根据网络 MTU 调整）
+      compression-type: lz4    # LZ4 压缩算法（延迟/压缩率平衡最佳）
+      buffer-memory: 33554432  # 生产者缓冲区内存（32MB）
+      max-block-ms: 100        # 发送超时时间（毫秒）
+      properties:
+        enable.idempotence: true   # 启用幂等性（防止消息重复）
+        max.in.flight.requests.per.connection: 1  # 保证消息顺序
+        retries: 2147483647       # 无限重试（配合幂等性）
+    listener:
+      ack-mode: record
+
+server:
+  port: 7752
+

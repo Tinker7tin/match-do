@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package order;
+
+option java_package = "org.order.me.model.proto";
+option java_outer_classname = "OrderProto";
+
+message Order {
+  // 订单ID
+  int64 order_id = 1;
+
+  // 交易对（如 BTC/USDT）
+  string symbol = 2;
+
+  // 交易类型
+  int32 type = 3;
+
+  // 价格（建议使用字符串表示精度）
+  int64 price = 4;  // 或 string price = 4;
+
+  // 交易数量（建议使用字符串表示精度）
+  int64 amount = 5; // 或 string amount = 5;
+
+  // 未成交数量
+  int64 remaining = 6;
+
+  // 交易方式
+  int32 trade_type = 7;
+
+  // 订单状态
+  int32 status = 8;
+}
