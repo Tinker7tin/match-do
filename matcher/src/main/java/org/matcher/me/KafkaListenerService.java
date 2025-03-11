@@ -22,7 +22,7 @@ public class KafkaListenerService {
     @KafkaListener(topics = "order-topic")
     public void listen(byte[] message) throws InvalidProtocolBufferException {
         OrderProto.Order order = OrderProto.Order.parseFrom(message);
-        log.info("order-topic receive message:{}",order);
+        log.info("order-topic receive message:{}",order.getOrderId());
         OrderEntity orderEntity = OrderEntity.builder()
                 .orderId(order.getOrderId())
                 .type(OrderType.getEnum(order.getType()))

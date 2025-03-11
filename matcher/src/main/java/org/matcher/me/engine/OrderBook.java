@@ -1,11 +1,14 @@
 package org.matcher.me.engine;
 
 import com.lmax.disruptor.EventHandler;
-import it.unimi.dsi.fastutil.longs.*;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import org.matcher.me.enums.OrderType;
 import org.matcher.me.enums.TradeType;
 import org.matcher.me.model.OrderEntity;
 import org.matcher.me.model.TradedOrder;
+import org.matcher.me.model.depth.DepthMap;
 
 import java.util.Comparator;
 
@@ -28,6 +31,9 @@ public class OrderBook implements EventHandler<GlobalDisruptor.OrderEvent> {
     // 价格排序集合（使用AVL树维护有序性）
     private final LongSortedSet sortedBuyPrices = new LongAVLTreeSet(Comparator.reverseOrder()); // 买方降序
     private final LongSortedSet sortedSellPrices = new LongAVLTreeSet(); // 卖方升序
+
+    //深度
+    private final DepthMap depthMap = new DepthMap();
 
     // 分片锁配置（128分片，提升并发度）
     private static final int PRICE_SHARDS = 128;
@@ -60,13 +66,13 @@ public class OrderBook implements EventHandler<GlobalDisruptor.OrderEvent> {
 
     // region 买方订单处理
     private void processBuyOrder(OrderEntity buyOrder) {
-        // 阶段1：与卖方订单撮合
+        // 阶段1：与卖方最优价格订单撮合
         while (buyOrder.getRemaining() > 0 && !sortedSellPrices.isEmpty()) {
+            // 最佳卖单价
             long bestSellPrice = sortedSellPrices.firstLong();
 
             // 限价单价格检查：买单价 >= 卖一价
-            if (buyOrder.getTradeType() == TradeType.LIMIT &&
-                    buyOrder.getPrice() < bestSellPrice) {
+            if (buyOrder.getTradeType() == TradeType.LIMIT && buyOrder.getPrice() < bestSellPrice) {
                 break;
             }
 
